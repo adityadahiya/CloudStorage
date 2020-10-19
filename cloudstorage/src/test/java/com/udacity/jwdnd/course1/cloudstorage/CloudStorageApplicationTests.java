@@ -247,7 +247,7 @@ public class CloudStorageApplicationTests {
 
     @Test
     @Order(8)
-    public void updateCredentialTest() {
+    public void updateAndDecryptCredentialTest() {
         driver.get("http://localhost:" + this.port + "/login");
         WebDriverWait wait = new WebDriverWait(driver, 5);
         wait.until(ExpectedConditions.elementToBeClickable(By.id("inputUsername"))).sendKeys(userName);
