@@ -11,20 +11,23 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.core.Ordered;
 
 import java.time.Duration;
 import java.util.List;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class CloudStorageApplicationTests {
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+public class CloudStorageApplicationTests {
 
 	private static String firstName = "firstName";
 	private static String lastName = "lastName";
-	private static String userName = "Username";
+	private static String userName = "UserName";
 	private static String password = "Password";
-	private static String noteTitle = "Title";
-	private static String noteDescription = "Description";
-	private static String credURL = "example.com";
+	private static String noteTitle = "Title for Note";
+	private static String noteDescription = "Description for Note";
+	private static String credURL = "https://www.google.co.in/";
+	String newNoteTitle = "New title for Note";
 
 	@LocalServerPort
 	private int port;
@@ -49,27 +52,29 @@ class CloudStorageApplicationTests {
 	}
 
 	@Test
+	@Order(1)
 	public void getLoginPage() {
 		driver.get("http://localhost:" + this.port + "/login");
 		Assertions.assertEquals("Login", driver.getTitle());
 	}
 
 	@Test
+	@Order(2)
 	public void getSignupPage() {
 		driver.get("http://localhost:" + this.port + "/signup");
 		Assertions.assertEquals("Sign Up", driver.getTitle());
 	}
 
 	@Test
+	@Order(3)
 	public void getUnauthorizedHomePage() {
 		driver.get("http://localhost:" + this.port + "/home");
 		Assertions.assertEquals("Login", driver.getTitle());
 	}
 
+	@Order(Ordered.HIGHEST_PRECEDENCE)
 	@Test
-	public void newUserAccessTest() throws InterruptedException {
-		WebDriverWait wait = new WebDriverWait(driver, 5);
-		// signup
+	public void userSignupTest() {
 		driver.get("http://localhost:" + this.port + "/signup");
 		WebElement inputFirstName = driver.findElement(By.id("inputFirstName"));
 		inputFirstName.sendKeys(firstName);
@@ -81,59 +86,37 @@ class CloudStorageApplicationTests {
 		inputPassword.sendKeys(password);
 		WebElement signUpButton = driver.findElement(By.id("signup"));
 		signUpButton.click();
-
-		//login
-		driver.get("http://localhost:" + this.port + "/login");
-		inputUsername = driver.findElement(By.id("inputUsername"));
-		inputUsername.sendKeys(userName);
-		inputPassword = driver.findElement(By.id("inputPassword"));
-		inputPassword.sendKeys(password);
-		WebElement loginButton = driver.findElement(By.id("login"));
-		loginButton.click();
-		Assertions.assertEquals("Home", driver.getTitle());
-
-		//logout
-		WebElement logoutButton = wait.until(driver -> driver.findElement(By.id("logout")));
-		Thread.sleep(2000);
-		logoutButton.click();
-		WebElement login = wait.until(driver -> driver.findElement(By.id("login")));
-		Assertions.assertEquals("Login", driver.getTitle());
-
-		//Try accessing homepage
-		driver.get("http://localhost:" + this.port + "/home");
-		Assertions.assertEquals("Login", driver.getTitle());
 	}
 
-	@Test
-	public void noteCRUDTest() {
-		WebDriverWait wait = new WebDriverWait (driver, 5);
-		JavascriptExecutor jse =(JavascriptExecutor) driver;
-		String newNoteTitle = "new note title";
-		// signup
-		driver.get("http://localhost:" + this.port + "/signup");
-		WebElement inputFirstName = driver.findElement(By.id("inputFirstName"));
-		inputFirstName.sendKeys(firstName);
-		WebElement inputLastName = driver.findElement(By.id("inputLastName"));
-		inputLastName.sendKeys(lastName);
+/*	@Test
+	@Order(5)
+	public void userLoginTest() {
+		driver.get("http://localhost:" + this.port + "/login");
 		WebElement inputUsername = driver.findElement(By.id("inputUsername"));
 		inputUsername.sendKeys(userName);
 		WebElement inputPassword = driver.findElement(By.id("inputPassword"));
 		inputPassword.sendKeys(password);
-		WebElement signUpButton = driver.findElement(By.id("signup"));
-		signUpButton.click();
+		WebElement loginButton = driver.findElement(By.id("login"));
+		loginButton.click();
+		Assertions.assertEquals("Home", driver.getTitle());
+	}*/
 
+	@Test
+	@Order(4)
+	public void addNoteTest() {
 		//login
 		driver.get("http://localhost:" + this.port + "/login");
-		inputUsername = driver.findElement(By.id("inputUsername"));
+		WebElement inputUsername = driver.findElement(By.id("inputUsername"));
 		inputUsername.sendKeys(userName);
-		inputPassword = driver.findElement(By.id("inputPassword"));
+		WebElement inputPassword = driver.findElement(By.id("inputPassword"));
 		inputPassword.sendKeys(password);
 		WebElement loginButton = driver.findElement(By.id("login"));
 		loginButton.click();
 		Assertions.assertEquals("Home", driver.getTitle());
 
-		//added note
+		WebDriverWait wait = new WebDriverWait (driver, 5);
 		WebElement notesTab = driver.findElement(By.id("nav-notes-tab"));
+		JavascriptExecutor jse =(JavascriptExecutor) driver;
 		jse.executeScript("arguments[0].click()", notesTab);
 		wait.withTimeout(Duration.ofSeconds(30));
 		WebElement newNote = driver.findElement(By.id("newnote"));
@@ -160,9 +143,28 @@ class CloudStorageApplicationTests {
 			}
 		}
 		Assertions.assertTrue(created);
+	}
 
-		//update note
-		notesList = notesTable.findElements(By.tagName("td"));
+
+	@Test
+	@Order(5)
+	public void updateNoteTest() {
+		//login
+		driver.get("http://localhost:" + this.port + "/login");
+		WebElement inputUsername = driver.findElement(By.id("inputUsername"));
+		inputUsername.sendKeys(userName);
+		WebElement inputPassword = driver.findElement(By.id("inputPassword"));
+		inputPassword.sendKeys(password);
+		WebElement loginButton = driver.findElement(By.id("login"));
+		loginButton.click();
+		Assertions.assertEquals("Home", driver.getTitle());
+
+		JavascriptExecutor jse =(JavascriptExecutor) driver;
+		WebElement notesTab = driver.findElement(By.id("nav-notes-tab"));
+		jse.executeScript("arguments[0].click()", notesTab);
+		WebDriverWait wait = new WebDriverWait (driver, 5);
+		WebElement notesTable = driver.findElement(By.id("userTable"));
+		List<WebElement> notesList = notesTable.findElements(By.tagName("td"));
 		WebElement editElement = null;
 		for (int i = 0; i < notesList.size(); i++) {
 			WebElement element = notesList.get(i);
@@ -176,6 +178,7 @@ class CloudStorageApplicationTests {
 		wait.until(ExpectedConditions.elementToBeClickable(notetitle));
 		notetitle.clear();
 		notetitle.sendKeys(newNoteTitle);
+		WebElement savechanges = driver.findElement(By.id("saveNote"));
 		savechanges = driver.findElement(By.id("saveNote"));
 		savechanges.click();
 		Assertions.assertEquals("Home", driver.getTitle());
@@ -195,9 +198,27 @@ class CloudStorageApplicationTests {
 			}
 		}
 		Assertions.assertTrue(edited);
+	}
 
-		//delete
-		notesList = notesTable.findElements(By.tagName("td"));
+	@Test
+	@Order(6)
+	public void deleteNoteTest() {
+		//login
+		driver.get("http://localhost:" + this.port + "/login");
+		WebElement inputUsername = driver.findElement(By.id("inputUsername"));
+		inputUsername.sendKeys(userName);
+		WebElement inputPassword = driver.findElement(By.id("inputPassword"));
+		inputPassword.sendKeys(password);
+		WebElement loginButton = driver.findElement(By.id("login"));
+		loginButton.click();
+		Assertions.assertEquals("Home", driver.getTitle());
+
+		JavascriptExecutor jse =(JavascriptExecutor) driver;
+		WebElement notesTab = driver.findElement(By.id("nav-notes-tab"));
+		jse.executeScript("arguments[0].click()", notesTab);
+		WebDriverWait wait = new WebDriverWait (driver, 5);
+		WebElement notesTable = driver.findElement(By.id("userTable"));
+		List<WebElement> notesList = notesTable.findElements(By.tagName("td"));
 		WebElement deleteElement = null;
 		for (int i = 0; i < notesList.size(); i++) {
 			WebElement element = notesList.get(i);
@@ -227,35 +248,20 @@ class CloudStorageApplicationTests {
 	}
 
 	@Test
-	public void credentialCRUDTest() {
-		WebDriverWait wait = new WebDriverWait (driver, 5);
-		JavascriptExecutor jse =(JavascriptExecutor) driver;
-		String newNoteTitle = "new note title";
-		String newUserName = "new user name";
-		// signup
-		driver.get("http://localhost:" + this.port + "/signup");
-		WebElement inputFirstName = driver.findElement(By.id("inputFirstName"));
-		inputFirstName.sendKeys(firstName);
-		WebElement inputLastName = driver.findElement(By.id("inputLastName"));
-		inputLastName.sendKeys(lastName);
+	@Order(7)
+	public void addCredentialTest() {
+		//login
+		driver.get("http://localhost:" + this.port + "/login");
 		WebElement inputUsername = driver.findElement(By.id("inputUsername"));
 		inputUsername.sendKeys(userName);
 		WebElement inputPassword = driver.findElement(By.id("inputPassword"));
-		inputPassword.sendKeys(password);
-		WebElement signUpButton = driver.findElement(By.id("signup"));
-		signUpButton.click();
-
-		//login
-		driver.get("http://localhost:" + this.port + "/login");
-		inputUsername = driver.findElement(By.id("inputUsername"));
-		inputUsername.sendKeys(userName);
-		inputPassword = driver.findElement(By.id("inputPassword"));
 		inputPassword.sendKeys(password);
 		WebElement loginButton = driver.findElement(By.id("login"));
 		loginButton.click();
 		Assertions.assertEquals("Home", driver.getTitle());
 
-		//added credential
+		WebDriverWait wait = new WebDriverWait (driver, 5);
+		JavascriptExecutor jse =(JavascriptExecutor) driver;
 		WebElement credentialsTab = driver.findElement(By.id("nav-credentials-tab"));
 		jse.executeScript("arguments[0].click()", credentialsTab);
 		wait.withTimeout(Duration.ofSeconds(30));
@@ -297,8 +303,27 @@ class CloudStorageApplicationTests {
 		}
 		Assertions.assertTrue(isEncrypted);
 
-		//update credential
-		credList = credTable.findElements(By.tagName("td"));
+	}
+
+	@Test
+	@Order(8)
+	public void updateCredentialTest() {
+		//login
+		driver.get("http://localhost:" + this.port + "/login");
+		WebElement inputUsername = driver.findElement(By.id("inputUsername"));
+		inputUsername.sendKeys(userName);
+		WebElement inputPassword = driver.findElement(By.id("inputPassword"));
+		inputPassword.sendKeys(password);
+		WebElement loginButton = driver.findElement(By.id("login"));
+		loginButton.click();
+		Assertions.assertEquals("Home", driver.getTitle());
+
+		WebDriverWait wait = new WebDriverWait (driver, 5);
+		JavascriptExecutor jse =(JavascriptExecutor) driver;
+		WebElement credentialsTab = driver.findElement(By.id("nav-credentials-tab"));
+		jse.executeScript("arguments[0].click()", credentialsTab);
+		WebElement credTable = driver.findElement(By.id("credentialTable"));
+		List<WebElement> credList = credTable.findElements(By.tagName("td"));
 		WebElement editElement = null;
 		for (int i = 0; i < credList.size(); i++) {
 			WebElement element = credList.get(i);
@@ -315,10 +340,10 @@ class CloudStorageApplicationTests {
 		WebElement credUserPwd = driver.findElement(By.id("credential-password"));
 		wait.until(ExpectedConditions.elementToBeClickable(credUserPwd));
 		Assertions.assertEquals(password, credUserPwd.getAttribute("value"));
-
+		String newUserName = "new user name";
 		credUserName.clear();
 		credUserName.sendKeys(newUserName);
-		savechanges = driver.findElement(By.id("saveCredential"));
+		WebElement savechanges = driver.findElement(By.id("saveCredential"));
 		savechanges.click();
 		Assertions.assertEquals("Home", driver.getTitle());
 
@@ -337,9 +362,27 @@ class CloudStorageApplicationTests {
 			}
 		}
 		Assertions.assertTrue(edited);
+	}
 
-		//delete credential
-		credList = credTable.findElements(By.tagName("td"));
+	@Test
+	@Order(9)
+	public void deleteCredentialTest() {
+		//login
+		driver.get("http://localhost:" + this.port + "/login");
+		WebElement inputUsername = driver.findElement(By.id("inputUsername"));
+		inputUsername.sendKeys(userName);
+		WebElement inputPassword = driver.findElement(By.id("inputPassword"));
+		inputPassword.sendKeys(password);
+		WebElement loginButton = driver.findElement(By.id("login"));
+		loginButton.click();
+		Assertions.assertEquals("Home", driver.getTitle());
+
+		WebDriverWait wait = new WebDriverWait (driver, 5);
+		JavascriptExecutor jse =(JavascriptExecutor) driver;
+		WebElement credentialsTab = driver.findElement(By.id("nav-credentials-tab"));
+		jse.executeScript("arguments[0].click()", credentialsTab);
+		WebElement credTable = driver.findElement(By.id("credentialTable"));
+		List <WebElement>credList = credTable.findElements(By.tagName("td"));
 		WebElement deleteElement = null;
 		for (int i = 0; i < credList.size(); i++) {
 			WebElement element = credList.get(i);
@@ -352,6 +395,7 @@ class CloudStorageApplicationTests {
 		Assertions.assertEquals("Home", driver.getTitle());
 
 		//check the deleted credential
+		String newUserName = "new user name";
 		driver.get("http://localhost:" + this.port + "/home");
 		credentialsTab = driver.findElement(By.id("nav-credentials-tab"));
 		jse.executeScript("arguments[0].click()", credentialsTab);
@@ -367,5 +411,4 @@ class CloudStorageApplicationTests {
 		}
 		Assertions.assertFalse(deleted);
 	}
-
 }
