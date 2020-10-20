@@ -3,7 +3,9 @@ package com.udacity.jwdnd.course1.cloudstorage.services;
 import com.udacity.jwdnd.course1.cloudstorage.mapper.FileUploadMapper;
 import com.udacity.jwdnd.course1.cloudstorage.model.File;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
+import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -11,6 +13,7 @@ import java.io.InputStream;
 import java.util.List;
 
 @Service
+@Transactional
 public class FileUploadService {
 
     private final FileUploadMapper fileMapper;
@@ -50,7 +53,8 @@ public class FileUploadService {
     public List<File> getAllFiles(User user) {
         return fileMapper.getAllFiles(user);
     }
+
     public int deleteFileById(Integer id) {
-         return fileMapper.deleteFile(id);
+        return fileMapper.deleteFile(id);
     }
 }

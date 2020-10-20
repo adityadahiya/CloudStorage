@@ -4,6 +4,7 @@ import com.udacity.jwdnd.course1.cloudstorage.model.Credentials;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import com.udacity.jwdnd.course1.cloudstorage.services.CredentialsService;
 import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,13 +18,10 @@ import java.util.List;
 @RequestMapping("/credentials")
 public class CredentialsController {
 
+    @Autowired
     private CredentialsService credentialsService;
+    @Autowired
     private UserService userService;
-
-    public CredentialsController(CredentialsService credentialsService, UserService userService) {
-        this.credentialsService = credentialsService;
-        this.userService = userService;
-    }
 
     @GetMapping("/delete/{id}")
     public String deleteCredentialsById(@PathVariable Integer id) {

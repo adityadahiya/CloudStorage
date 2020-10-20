@@ -5,11 +5,13 @@ import com.udacity.jwdnd.course1.cloudstorage.model.Credentials;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class CredentialsService {
 
     private final CredentialsMapper credentialsMapper;
@@ -47,6 +49,7 @@ public class CredentialsService {
     public List<Credentials> getAllCredentials(User user) {
         return credentialsMapper.getAllCredentials(user);
     }
+
     public int deleteCredentials(Integer id) {
         return credentialsMapper.deleteCredentials(id);
     }

@@ -5,6 +5,7 @@ import com.udacity.jwdnd.course1.cloudstorage.services.CredentialsService;
 import com.udacity.jwdnd.course1.cloudstorage.services.FileUploadService;
 import com.udacity.jwdnd.course1.cloudstorage.services.NotesService;
 import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,17 +15,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/home")
 public class HomeController {
 
+    @Autowired
     private FileUploadService fileUploadService;
+    @Autowired
     private NotesService notesService;
+    @Autowired
     private CredentialsService credentialsService;
+    @Autowired
     private UserService userService;
-
-    public HomeController(FileUploadService fileUploadService, NotesService notesService, CredentialsService credentialsService, UserService userService) {
-        this.fileUploadService = fileUploadService;
-        this.notesService = notesService;
-        this.credentialsService = credentialsService;
-        this.userService = userService;
-    }
 
     @GetMapping()
     public String getHomePage(Model model, Authentication authentication) {

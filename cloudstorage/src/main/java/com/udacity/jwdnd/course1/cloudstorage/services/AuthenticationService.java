@@ -10,8 +10,10 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 
 import com.udacity.jwdnd.course1.cloudstorage.mapper.UserMapper;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class AuthenticationService implements AuthenticationProvider {
     private UserMapper userMapper;
     private HashService hashService;

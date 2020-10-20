@@ -4,6 +4,7 @@ import com.udacity.jwdnd.course1.cloudstorage.model.File;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import com.udacity.jwdnd.course1.cloudstorage.services.FileUploadService;
 import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -18,13 +19,10 @@ import java.io.IOException;
 @RequestMapping("/file")
 public class FileUploadController {
 
+    @Autowired
     private FileUploadService fileUploadService;
+    @Autowired
     private UserService userService;
-
-    public FileUploadController(FileUploadService fileUploadService, UserService userService) {
-        this.fileUploadService = fileUploadService;
-        this.userService = userService;
-    }
 
     @GetMapping("/delete/{id}")
     public String deleteFileById(@PathVariable Integer id) {
@@ -53,12 +51,14 @@ public class FileUploadController {
     @PostMapping("/upload")
     public String uploadFile(@RequestParam("fileUpload") MultipartFile file, Authentication authentication, Model model) throws IOException {
         String fileUploadError = null;
-
         String userName = (String) authentication.getPrincipal();
         User user = this.userService.getUser(userName);
 
-        if (file.getSize() == 0) {
+        if (file.isEmpty()) {
             fileUploadError = "File is empty";
+        }
+        if (file.getSize() / (1024 * 1024) > 10) {
+            fileUploadError = "File size is greater than 10MB";
         }
 
         if (!fileUploadService.isFileNameAvailable(file.getOriginalFilename()) && fileUploadError == null) {
@@ -77,8 +77,7 @@ public class FileUploadController {
         } else {
             return "redirect:/home?msg=" + fileUploadError;
         }
-
-
     }
+
 
 }

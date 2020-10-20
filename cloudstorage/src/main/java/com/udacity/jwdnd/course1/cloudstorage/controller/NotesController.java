@@ -4,6 +4,7 @@ import com.udacity.jwdnd.course1.cloudstorage.model.Notes;
 import com.udacity.jwdnd.course1.cloudstorage.model.User;
 import com.udacity.jwdnd.course1.cloudstorage.services.NotesService;
 import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,13 +14,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/notes")
 public class NotesController {
 
+    @Autowired
     private NotesService notesService;
+    @Autowired
     private UserService userService;
-
-    public NotesController(NotesService notesService, UserService userService) {
-        this.notesService = notesService;
-        this.userService = userService;
-    }
 
     @GetMapping("/delete/{id}")
     public String deleteNoteById(@PathVariable Integer id) {
@@ -45,8 +43,8 @@ public class NotesController {
         if (notesError == null) {
             int rows = 0;
             if (note.getNoteId() > 0) {
-                 rows = this.notesService.editNote(note);
-                 notesSuccess = "Note updated successfully";
+                rows = this.notesService.editNote(note);
+                notesSuccess = "Note updated successfully";
             } else {
                 rows = this.notesService.addNote(note);
                 notesSuccess = "Note added successfully";
